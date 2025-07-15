@@ -34,7 +34,7 @@ async function transferTon() {
 
         // Get network choice
         const network = await question('Choose network (mainnet/testnet) [default: testnet]: ');
-        const isMainnet = network.toLowerCase()  'mainnet';
+        const isMainnet = network.toLowerCase() === 'mainnet';
         
         // Get TON client endpoint
         const endpoint = await getHttpEndpoint({ 
@@ -73,7 +73,7 @@ async function transferTon() {
         const balance = await walletContract.getBalance();
         console.log(`Current balance: ${fromNano(balance)} TON`);
 
-        if (balance  0n) {
+        if (balance === 0n) {
             throw new Error('Sender wallet has no TON to transfer');
         }
 
@@ -171,7 +171,7 @@ async function transferTon() {
         console.log('\nWaiting for confirmation...');
         
         let currentSeqno = seqno;
-        while (currentSeqno  seqno) {
+        while (currentSeqno === seqno) {
             await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
             try {
                 currentSeqno = await walletContract.getSeqno();
@@ -196,7 +196,7 @@ async function transferTon() {
 // Alternative function for direct parameter input (without prompts)
 async function transferTonDirect(mnemonic, receiverAddress, amount, comment = '', network = 'testnet') {
     try {
-        const isMainnet = network.toLowerCase()  'mainnet';
+        const isMainnet = network.toLowerCase() === 'mainnet';
         
         // Get TON client endpoint
         const endpoint = await getHttpEndpoint({ 
@@ -280,6 +280,6 @@ module.exports = {
 };
 
 // Run interactive transfer if this file is executed directly
-if (require.main  module) {
+if (require.main === module) {
     transferTon().catch(console.error);
 } 
