@@ -1,0 +1,25 @@
+{
+  "name": "ton-transfer-tool",
+  "version": "1.0.0",
+  "description": "TON blockchain transfer tool with private key support",
+  "main": "ton-transfer.js",
+  "scripts": {
+    "start": "node ton-transfer.js",
+    "transfer": "node ton-transfer.js"
+  },
+  "dependencies": {
+    "@ton/ton": "^13.9.0",
+    "@ton/core": "^0.53.0",
+    "@ton/crypto": "^3.2.0",
+    "@orbs-network/ton-access": "^2.3.3"
+  },
+  "keywords": [
+    "ton",
+    "blockchain",
+    "crypto",
+    "transfer",
+    "wallet"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
