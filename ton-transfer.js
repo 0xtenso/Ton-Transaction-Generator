@@ -1,5 +1,5 @@
 const { TonClient, WalletContractV4, internal, toNano, fromNano } = require('@ton/ton');
-const { mnemonicToPrivateKey, mnemonicValidate } = require('@ton/crypto');
+const { keyPairFromSecretKey } = require('@ton/crypto');
 const { getHttpEndpoint } = require('@orbs-network/ton-access');
 const readline = require('readline');
 
@@ -42,23 +42,21 @@ async function transferTon() {
         });
         const client = new TonClient({ endpoint });
 
-        // Get sender's mnemonic/private key
-        console.log('\n Sender Wallet ');
-        const mnemonicInput = await question('Enter sender\'s 24-word mnemonic phrase (space-separated): ');
-        const mnemonicWords = mnemonicInput.trim().split(' ');
-
-        // Validate mnemonic
-        if (mnemonicWords.length !== 24) {
-            throw new Error('Mnemonic must contain exactly 24 words');
+        // Get sender's private key
+        console.log('\nSender Wallet ');
+        const privateKeyInput = await question('Enter sender\'s private key (64-character hex string): ');
+        
+        // Validate private key format (should be 64 hex characters)
+        if (!/^[0-9a-fA-F]{64}$/.test(privateKeyInput)) {
+            throw new Error('Private key must be a 64-character hexadecimal string');
         }
 
-        const isValidMnemonic = await mnemonicValidate(mnemonicWords);
-        if (!isValidMnemonic) {
-            throw new Error('Invalid mnemonic phrase');
-        }
+        // Convert hex string to Buffer
+        const secretKey = Buffer.from(privateKeyInput, 'hex');
+        
+        // Create keypair object (we need to derive public key from secret key)
+        const keyPair = keyPairFromSecretKey(secretKey);
 
-        // Create wallet from mnemonic
-        const keyPair = await mnemonicToPrivateKey(mnemonicWords);
         const wallet = WalletContractV4.create({
             workchain: 0,
             publicKey: keyPair.publicKey
@@ -194,7 +192,7 @@ async function transferTon() {
 }
 
 // Alternative function for direct parameter input (without prompts)
-async function transferTonDirect(mnemonic, receiverAddress, amount, comment = '', network = 'testnet') {
+async function transferTonDirect(privateKey, receiverAddress, amount, comment = '', network = 'testnet') {
     try {
         const isMainnet = network.toLowerCase() === 'mainnet';
         
@@ -204,14 +202,14 @@ async function transferTonDirect(mnemonic, receiverAddress, amount, comment = ''
         });
         const client = new TonClient({ endpoint });
 
-        // Validate and create wallet
-        const mnemonicWords = mnemonic.split(' ');
-        const isValidMnemonic = await mnemonicValidate(mnemonicWords);
-        if (!isValidMnemonic) {
-            throw new Error('Invalid mnemonic phrase');
+        // Validate and create wallet from private key
+        if (!/^[0-9a-fA-F]{64}$/.test(privateKey)) {
+            throw new Error('Private key must be a 64-character hexadecimal string');
         }
 
-        const keyPair = await mnemonicToPrivateKey(mnemonicWords);
+        const secretKey = Buffer.from(privateKey, 'hex');
+        const keyPair = keyPairFromSecretKey(secretKey);
+
         const wallet = WalletContractV4.create({
             workchain: 0,
             publicKey: keyPair.publicKey
