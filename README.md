@@ -192,7 +192,6 @@ New balance: 1.39 TON
 ```
 ├── ton-transfer.js      # Main transfer script
 ├── package.json         # Dependencies
-├── example-usage.js     # Usage examples
 └── README.md           # This file
 ```
 
